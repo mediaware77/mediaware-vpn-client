@@ -407,7 +407,6 @@ mod tests {
             location_id: 1,
             pubkey: "pk".into(),
             method: 0, // TOTP
-            posture_data: None,
         }
     }
 
@@ -544,7 +543,6 @@ mod tests {
             location_id: 1,
             pubkey: "pk".into(),
             method: MfaMethod::MobileApprove as i32,
-            posture_data: None,
         };
         match mfa_start(url, request).await.unwrap_err() {
             MfaError::MfaRejected { message } => {

@@ -6,9 +6,7 @@
 //! rendering, TTY prompting) stays here; all HTTP, WebSocket, and poll
 //! logic delegates to `defguard_core::mfa`.
 
-use defguard_client_proto::defguard::{
-    client_types::MfaMethod, enterprise::posture::v2::DevicePostureData,
-};
+use defguard_client_proto::defguard::client_types::MfaMethod;
 use defguard_core::{
     database::{
         models::{
@@ -113,7 +111,6 @@ pub(crate) async fn authorize(
     source: &CodeSource,
     instance: &Instance<Id>,
     method: MfaMethod,
-    posture_data: Option<DevicePostureData>,
     pool: &DbPool,
 ) -> Result<SecretString, CliError> {
     // Reject methods not yet supported by the CLI before doing any I/O.
@@ -159,7 +156,6 @@ pub(crate) async fn authorize(
         location_id: location.network_id,
         pubkey: wireguard_keys.pubkey,
         method: method as i32,
-        posture_data,
     };
     let info = mfa::mfa_start(proxy_url.clone(), request)
         .await
@@ -194,7 +190,6 @@ pub(crate) async fn authorize(
 pub(crate) async fn authorize_oidc(
     location: &Location<Id>,
     instance: &Instance<Id>,
-    posture_data: Option<DevicePostureData>,
     pool: &DbPool,
     json_mode: bool,
 ) -> Result<SecretString, CliError> {
@@ -217,7 +212,6 @@ pub(crate) async fn authorize_oidc(
         location_id: location.network_id,
         pubkey: wireguard_keys.pubkey,
         method: MfaMethod::Oidc as i32,
-        posture_data,
     };
     let info = mfa::mfa_start(proxy_url.clone(), request)
         .await
@@ -262,7 +256,6 @@ pub(crate) async fn authorize_oidc(
 pub(crate) async fn authorize_mobile_approve(
     location: &Location<Id>,
     instance: &Instance<Id>,
-    posture_data: Option<DevicePostureData>,
     qr_file: Option<&str>,
     pool: &DbPool,
     json_mode: bool,
@@ -289,7 +282,6 @@ pub(crate) async fn authorize_mobile_approve(
         location_id: location.network_id,
         pubkey: wireguard_keys.pubkey,
         method: MfaMethod::MobileApprove as i32,
-        posture_data,
     };
     let info = mfa::mfa_start(proxy_url.clone(), request)
         .await

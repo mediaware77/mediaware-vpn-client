@@ -1,5 +1,5 @@
 [workspace]
-members = ["cli", "client-cli", "common", "client-proto", "core", "daemon", "enterprise/posture", "enterprise/provisioning", "enterprise/config-sync", "enterprise/service-locations"]
+members = ["cli", "client-cli", "common", "client-proto", "core", "daemon"]
 default-members = ["cli", "client-cli", "daemon", "."]
 
 [workspace.dependencies]
@@ -50,17 +50,17 @@ x25519-dalek = { version = "3.0", features = [
 ] }
 
 [workspace.package]
-authors = ["Defguard"]
+authors = ["Defguard", "Mediaware"]
 edition = "2021"
-homepage = "https://github.com/DefGuard/client"
+homepage = "https://github.com/mediaware77/mediaware-vpn-client"
 license-file = "../LICENSE.md"
 rust-version = "1.95"
 version = "2.1.2"
 
 [package]
 name = "defguard-client"
-description = "Defguard desktop client"
-repository = "https://github.com/DefGuard/client"
+description = "Mediaware VPN desktop client (fork of the Defguard client)"
+repository = "https://github.com/mediaware77/mediaware-vpn-client"
 default-run = "defguard-client"
 autobins = false
 authors.workspace = true
@@ -89,10 +89,6 @@ chrono.workspace = true
 defguard-cli.path = "client-cli"
 defguard-client-proto.path = "client-proto"
 defguard-client-core.path = "core"
-defguard-client-posture.path = "enterprise/posture"
-defguard-client-config-sync.path = "enterprise/config-sync"
-defguard-client-service-locations.path = "enterprise/service-locations"
-defguard-client-provisioning.path = "enterprise/provisioning"
 defguard-client-common.path = "common"
 dark-light = "2.0"
 defguard_wireguard_rs = { workspace = true, features = ["check_dependencies"] }

@@ -3,7 +3,7 @@ use std::{collections::HashMap, sync::Mutex};
 use defguard_client_core::{
     connection::active_connections::ACTIVE_CONNECTIONS, enrollment::EnrollmentSession,
 };
-use defguard_client_provisioning::ProvisioningConfig;
+use crate::provisioning::ProvisioningConfig;
 use tauri::{
     async_runtime::{spawn, JoinHandle},
     PhysicalPosition,

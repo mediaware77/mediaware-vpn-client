@@ -1,6 +1,5 @@
 use std::io::{stderr, stdin, IsTerminal};
 
-use defguard_client_posture::{authorize_posture_session, get_posture_data};
 use defguard_client_proto::defguard::client_types::MfaMethod;
 use defguard_core::{
     connection::{active_state::active_state, bring_up, ConnectionTarget},
@@ -75,6 +74,13 @@ pub async fn handle(
 
     let (target_name, psk, mtu) = match &target {
         ResolvedTarget::Location(location) => {
+            // Posture checks are an upstream enterprise feature that this build does not ship.
+            if location.posture_check_required {
+                return Err(CliError::Other(format!(
+                    "Location '{}' requires device posture checks, which this client does not support",
+                    location.name
+                )));
+            }
             if location.mfa_enabled() {
                 // Resolve the effective MFA method.
                 let method = mfa::resolve_method(location, mfa_method)?;
@@ -89,20 +95,9 @@ pub async fn handle(
                         CliError::Other(format!("Instance {} not found", location.instance_id))
                     })?;
 
-                // When posture is also required, collect posture data and pass it
-                // into the MFA start request so the server can validate both together.
-                let posture_data = if location.posture_check_required {
-                    Some(
-                        get_posture_data()
-                            .await
-                            .map_err(|e| CliError::Other(e.to_string()))?,
-                    )
-                } else {
-                    None
-                };
 
                 let psk = if method == MfaMethod::Oidc {
-                    mfa::authorize_oidc(location, &instance, posture_data, &state.pool, json)
+                    mfa::authorize_oidc(location, &instance, &state.pool, json)
                         .await?
                 } else if method == MfaMethod::MobileApprove {
                     // Fail-fast: if neither stderr is a TTY nor --qr-file is set,
@@ -117,7 +112,6 @@ pub async fn handle(
                     mfa::authorize_mobile_approve(
                         location,
                         &instance,
-                        posture_data,
                         qr_file,
                         &state.pool,
                         json,
@@ -145,7 +139,6 @@ pub async fn handle(
                         &source,
                         &instance,
                         method,
-                        posture_data,
                         &state.pool,
                     )
                     .await?
@@ -155,12 +148,6 @@ pub async fn handle(
                     Some(psk.expose_secret().to_string()),
                     state.app_config.mtu(),
                 )
-            } else if location.posture_check_required {
-                // Posture only (no MFA).
-                let psk = authorize_posture_session(location)
-                    .await
-                    .map_err(|e| CliError::Other(e.to_string()))?;
-                (location.name.clone(), psk, state.app_config.mtu())
             } else {
                 (location.name.clone(), None, state.app_config.mtu())
             }

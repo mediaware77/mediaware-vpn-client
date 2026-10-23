@@ -1500,9 +1500,7 @@ dependencies = [
  "chrono",
  "clap",
  "defguard-client-common",
- "defguard-client-config-sync",
  "defguard-client-core",
- "defguard-client-posture",
  "defguard-client-proto",
  "futures-util",
  "http",
@@ -1540,12 +1538,8 @@ dependencies = [
  "dark-light",
  "defguard-cli",
  "defguard-client-common",
- "defguard-client-config-sync",
  "defguard-client-core",
- "defguard-client-posture",
  "defguard-client-proto",
- "defguard-client-provisioning",
- "defguard-client-service-locations",
  "defguard_wireguard_rs",
  "dirs-next",
  "dispatch2",
@@ -1617,24 +1611,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "defguard-client-config-sync"
-version = "2.1.2"
-dependencies = [
- "defguard-client-core",
- "defguard-client-proto",
- "defguard-client-service-locations",
- "http",
- "log",
- "reqwest 0.13.5",
- "semver",
- "serde",
- "serde_json",
- "sqlx",
- "tokio",
- "tonic",
-]
-
-[[package]]
 name = "defguard-client-core"
 version = "2.1.2"
 dependencies = [
@@ -1679,24 +1655,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "defguard-client-posture"
-version = "2.1.2"
-dependencies = [
- "defguard-client-core",
- "defguard-client-proto",
- "log",
- "reqwest 0.13.5",
- "serde",
- "serde_json",
- "sysinfo",
- "time",
- "tokio",
- "tonic",
- "wiremock",
- "wmi",
-]
-
-[[package]]
 name = "defguard-client-proto"
 version = "2.1.2"
 dependencies = [
@@ -1713,17 +1671,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "defguard-client-provisioning"
-version = "2.1.2"
-dependencies = [
- "defguard-client-core",
- "log",
- "serde",
- "serde_json",
- "tempfile",
-]
-
-[[package]]
 name = "defguard-client-service"
 version = "2.1.2"
 dependencies = [
@@ -1731,9 +1678,7 @@ dependencies = [
  "async-stream",
  "clap",
  "defguard-client-common",
- "defguard-client-posture",
  "defguard-client-proto",
- "defguard-client-service-locations",
  "defguard_wireguard_rs",
  "futures-core",
  "log",
@@ -1747,32 +1692,6 @@ dependencies = [
  "tracing-appender",
  "tracing-subscriber",
  "windows-core 0.62.2",
- "windows-service",
- "windows-sys 0.61.2",
-]
-
-[[package]]
-name = "defguard-client-service-locations"
-version = "2.1.2"
-dependencies = [
- "base64 0.23.1",
- "defguard-client-common",
- "defguard-client-core",
- "defguard-client-posture",
- "defguard-client-proto",
- "defguard_wireguard_rs",
- "futures-util",
- "known-folders",
- "log",
- "prost",
- "serde",
- "serde_json",
- "tempfile",
- "thiserror 2.0.21",
- "tokio",
- "uuid",
- "windows 0.62.2",
- "windows-acl",
  "windows-service",
  "windows-sys 0.61.2",
 ]

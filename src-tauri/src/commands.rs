@@ -1,5 +1,5 @@
 use core::fmt;
-use std::{collections::HashMap, env, str::FromStr};
+use std::str::FromStr;
 
 use chrono::{DateTime, Duration, Utc};
 #[cfg(not(target_os = "macos"))]
@@ -12,28 +12,19 @@ use defguard_client_core::{
     enrollment::{self},
     mfa,
 };
-use defguard_client_posture::authorize_posture_session;
 #[cfg(not(target_os = "macos"))]
-use defguard_client_proto::defguard::client::v1::{
-    DeleteServiceLocationsRequest, RemoveInterfaceRequest,
+use defguard_client_proto::defguard::client::v1::RemoveInterfaceRequest;
+use defguard_client_proto::defguard::client_types::{
+    AdminInfo, ClientMfaFinishRequest, ClientMfaFinishResponse, ClientMfaStartRequest,
+    CodeMfaSetupFinishResponse, CodeMfaSetupStartResponse, DeviceConfigResponse,
+    EnrollmentSettings, InitialUserInfo, InstanceInfo as ProtoInstanceInfo, MfaMethod,
 };
-use defguard_client_proto::defguard::{
-    client_types::{
-        AdminInfo, ClientMfaFinishRequest, ClientMfaFinishResponse, ClientMfaStartRequest,
-        CodeMfaSetupFinishResponse, CodeMfaSetupStartResponse, DeviceConfigResponse,
-        EnrollmentSettings, InitialUserInfo, InstanceInfo as ProtoInstanceInfo, MfaMethod,
-    },
-    enterprise::posture::v2::DevicePostureData,
-};
-use defguard_client_provisioning::ProvisioningConfig;
 use reqwest::Url;
 use serde::{Deserialize, Serialize};
 use struct_patch::Patch;
 use tauri::{AppHandle, Emitter, Manager, State};
 use tokio_util::sync::CancellationToken;
 use uuid::Uuid;
-
-const UPDATE_URL: &str = "https://pkgs.defguard.net/api/update/check";
 
 use crate::{
     app_config::{AppConfig, AppConfigPatch},
@@ -57,9 +48,8 @@ use crate::{
         global_log_watcher::{spawn_global_log_watcher_task, stop_global_log_watcher_task},
         service_log_watcher::stop_log_watcher_task,
     },
-    periodic::config::{
-        do_update_instance, poll_instance_with_events, sync_service_locations_best_effort,
-    },
+    instance_update::apply_device_config,
+    provisioning::ProvisioningConfig,
     proxy::construct_platform_header,
     tauri_err_to_app_err,
     tray::{configure_tray_icon, reload_tray_menu},
@@ -71,7 +61,7 @@ use crate::{
     CommonConnection, CommonConnectionInfo, CommonLocationStats, ConnectionType,
 };
 #[cfg(not(target_os = "macos"))]
-use crate::{periodic::config::sync_service_locations, utils::execute_command};
+use crate::utils::execute_command;
 
 #[derive(Debug, Serialize, thiserror::Error)]
 #[serde(tag = "kind", content = "message", rename_all = "camelCase")]
@@ -169,14 +159,15 @@ pub async fn connect(
                 .into());
             }
             // Connect-time MFA brings the tunnel up itself (keeping the preshared
-            // key backend-side), so the only preshared key resolved here is for
-            // posture-only locations.
-            let preshared_key = if location.posture_check_required {
-                authorize_posture_session(&location).await?
-            } else {
-                None
-            };
-            connect_location_with_psk(location, preshared_key, &handle).await?;
+            // key backend-side). Posture checks are an upstream enterprise feature
+            // that this build does not ship.
+            if location.posture_check_required {
+                return Err(Error::PostureCheckFailed(
+                    "Device posture checks are not supported by this client".to_string(),
+                )
+                .into());
+            }
+            connect_location_with_psk(location, None, &handle).await?;
         } else {
             error!(
                 "Location with ID {location_id} not found in the database, aborting connection \
@@ -396,30 +387,9 @@ pub async fn disconnect_locations(location_ids: Vec<Id>, handle: AppHandle) -> R
     Ok(())
 }
 
-/// Triggers poll on location's instance config. Config will be updated if there are no more active
-/// connections for this instance.
-async fn maybe_update_instance_config(location_id: Id, handle: &AppHandle) -> Result<(), Error> {
-    let mut transaction = DB_POOL.begin().await?;
-    let Some(location) = Location::find_by_id(&mut *transaction, location_id).await? else {
-        error!("Location {location_id} not found, skipping config update check");
-        return Err(Error::NotFound);
-    };
-    let Some(mut instance) = Instance::find_by_id(&mut *transaction, location.instance_id).await?
-    else {
-        error!(
-            "Instance {} not found, skipping config update check",
-            location.instance_id
-        );
-        return Err(Error::NotFound);
-    };
-    poll_instance_with_events(&mut transaction, &mut instance, handle).await?;
-    transaction.commit().await?;
-
-    sync_service_locations_best_effort(&DB_POOL, &instance).await;
-
-    handle
-        .emit(EventKey::InstanceUpdate.into(), ())
-        .map_err(tauri_err_to_app_err)?;
+/// Upstream polls the instance config here (enterprise config sync). This build does not ship
+/// that feature; configuration changes arrive through `update_instance` instead.
+async fn maybe_update_instance_config(_location_id: Id, _handle: &AppHandle) -> Result<(), Error> {
     Ok(())
 }
 
@@ -514,16 +484,12 @@ async fn push_service_locations(_instance: &Instance<Id>) -> Result<Vec<Location
     Ok(Vec::new())
 }
 
-/// Pushes the instance's service locations to the daemon and returns all of its locations.
-///
-/// Delegates to [`sync_service_locations`] rather than building its own request, so the pushed
-/// field set cannot drift from the config-sync path.
+/// Returns all of the instance's locations. Service locations are not pushed to the daemon: they
+/// are an upstream enterprise feature that this build does not ship.
 #[cfg(not(target_os = "macos"))]
 async fn push_service_locations(instance: &Instance<Id>) -> Result<Vec<Location<Id>>, Error> {
     let locations = Location::find_by_instance_id(&*DB_POOL, instance.id, true).await?;
     trace!("Created following locations: {locations:#?}");
-
-    sync_service_locations(&DB_POOL, instance).await?;
 
     Ok(locations)
 }
@@ -715,10 +681,8 @@ pub async fn update_instance(
         debug!("The instance with id {instance_id} to update was found: {instance}");
         let mut transaction = DB_POOL.begin().await?;
         let locations_changed =
-            do_update_instance(&mut transaction, &mut instance, response).await?;
+            apply_device_config(&mut transaction, &mut instance, response).await?;
         transaction.commit().await?;
-
-        sync_service_locations_best_effort(&DB_POOL, &instance).await;
 
         if locations_changed {
             if let Err(err) = app_handle.emit(EventKey::InstanceUpdated.into(), ()) {
@@ -1021,19 +985,6 @@ pub async fn delete_instance(instance_id: Id, handle: AppHandle) -> Result<(), E
         TunnelsEnabledPayload::emit(&handle);
     }
 
-    client
-        .delete_service_locations(DeleteServiceLocationsRequest {
-            instance_id: instance.uuid.clone(),
-        })
-        .await
-        .map_err(|err| {
-            error!(
-                "Error while deleting service locations from the daemon for instance {}({}): {err}",
-                instance.name, instance.id,
-            );
-            Error::InternalError(err.to_string())
-        })?;
-
     reload_tray_menu(&handle).await;
 
     configure_tray_icon(&handle).await?;
@@ -1252,7 +1203,7 @@ pub struct AppVersionInfo {
     pub summary: Option<String>,
 }
 
-const PRODUCT_NAME: &str = "defguard-client";
+const RELEASES_URL: &str = "https://github.com/mediaware77/mediaware-vpn-client/releases";
 
 fn reported_app_version(handle: &AppHandle) -> String {
     defguard_client_core::version::select_reported_app_version(
@@ -1261,43 +1212,19 @@ fn reported_app_version(handle: &AppHandle) -> String {
     )
 }
 
+/// Upstream asks the Defguard update server here, which would announce Defguard releases to this
+/// build. Until this fork has its own update channel, report the running version as the latest.
 #[tauri::command(async)]
 pub async fn get_latest_app_version(handle: AppHandle) -> Result<AppVersionInfo, Error> {
     let app_version = reported_app_version(&handle);
-    let operating_system = env::consts::OS;
-
-    let mut request_data = HashMap::new();
-    request_data.insert("product", PRODUCT_NAME);
-    request_data.insert("client_version", &app_version);
-    request_data.insert("operating_system", operating_system);
-
-    debug!(
-        "Fetching latest application version, client metadata: current version: {app_version} \
-        and operating system: {operating_system}"
-    );
-
-    let client = reqwest::Client::new();
-    let res = client.post(UPDATE_URL).json(&request_data).send().await;
-
-    if let Ok(response) = res {
-        let response_json = response.json::<AppVersionInfo>().await;
-
-        let response = response_json.map_err(|err| {
-            error!("Failed to deserialize latest application version response {err}");
-            Error::CommandError(err.to_string())
-        })?;
-
-        info!(
-            "The latest release version of the application available for download is {}, it was \
-            released on {}.",
-            response.version, response.release_date
-        );
-        Ok(response)
-    } else {
-        let err = res.err().unwrap();
-        error!("Failed to fetch latest application version {err}");
-        Err(Error::CommandError(err.to_string()))
-    }
+    debug!("Update check disabled in this build, reporting {app_version} as the latest version");
+    Ok(AppVersionInfo {
+        version: app_version,
+        release_date: String::new(),
+        release_notes_url: RELEASES_URL.to_string(),
+        update_url: RELEASES_URL.to_string(),
+        summary: None,
+    })
 }
 
 #[tauri::command]
@@ -1362,10 +1289,14 @@ pub fn get_platform_header() -> String {
     construct_platform_header()
 }
 
+/// Posture checks are an upstream enterprise feature that this build does not ship. The command
+/// stays so the frontend contract does not change.
 #[tauri::command(async)]
-pub async fn get_posture_data() -> Result<DevicePostureData, Error> {
-    debug!("Received a command to prepare posture report");
-    defguard_client_posture::get_posture_data().await
+pub async fn get_posture_data() -> Result<(), Error> {
+    debug!("Received a command to prepare posture report; not supported in this build");
+    Err(Error::PostureCheckFailed(
+        "Device posture checks are not supported by this client".to_string(),
+    ))
 }
 
 #[derive(Debug, Serialize)]
@@ -1610,20 +1541,13 @@ pub async fn mfa_start(
         .ensure_single_all_traffic_connection(&DB_POOL, None)
         .await
         .map_err(|err| err.to_string())?;
-    let posture_data = if location.posture_check_required {
-        Some(
-            defguard_client_posture::get_posture_data()
-                .await
-                .map_err(|e| format!("Failed to collect posture data: {e}"))?,
-        )
-    } else {
-        None
-    };
+    if location.posture_check_required {
+        return Err("Device posture checks are not supported by this client".to_string());
+    }
     let request = ClientMfaStartRequest {
         location_id: location.network_id,
         pubkey: keys.pubkey,
         method: method as i32,
-        posture_data,
     };
     mfa::mfa_start(proxy_url, request)
         .await

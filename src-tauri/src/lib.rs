@@ -7,6 +7,7 @@ pub mod appstate;
 pub mod commands;
 pub mod events;
 pub mod gui;
+pub mod instance_update;
 pub mod log_watcher;
 pub mod periodic;
 pub mod provisioning;

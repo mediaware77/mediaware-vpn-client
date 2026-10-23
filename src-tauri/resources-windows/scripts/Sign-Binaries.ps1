@@ -19,7 +19,9 @@ $digestAlgorithm = if ($windowsConfig.digestAlgorithm) {
 }
 
 if (-not $thumbprint) {
-    throw 'Windows certificate thumbprint is not configured.'
+    # No signing certificate configured yet: build unsigned binaries.
+    Write-Host 'Windows certificate thumbprint is not configured; skipping code signing.'
+    exit 0
 }
 
 # Resolve signtool to a plain path string. Get-Command returns a

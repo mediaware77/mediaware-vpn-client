@@ -12,7 +12,6 @@ mod mfa_code;
 mod mfa_qr;
 mod monitor;
 mod output;
-mod polling;
 mod resolve;
 mod state;
 #[cfg(all(test, target_os = "linux"))]
@@ -46,7 +45,6 @@ pub async fn cli_main() -> ExitCode {
         }
     };
 
-    polling::poll_config(&state).await;
     monitor::tear_down_stale_connections(&state).await;
 
     // Dispatch command.

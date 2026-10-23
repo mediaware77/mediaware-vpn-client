@@ -46,7 +46,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             &[
                 "../proto/v1/client/client.proto",
                 "../proto/v1/core/proxy.proto",
-                "../proto/enterprise/v2/posture/posture.proto",
                 "../proto/common/client_types.proto",
             ],
             &["../proto"],
