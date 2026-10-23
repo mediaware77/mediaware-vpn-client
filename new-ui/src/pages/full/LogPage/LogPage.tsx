@@ -162,7 +162,7 @@ export const LogPage = () => {
     <FullPage id="log-page-view" hideScrollContainer>
       <FullPageTitle title="Log" spacing={ThemeSpacing.Sm} />
       <p className="page-description">
-        The source of the logs. Logs can come from the Defguard client or the VPN
+        The source of the logs. Logs can come from the Mediaware VPN client or the VPN
         service/extension that manages VPN connections at the network level.
       </p>
       <SizedBox height={ThemeSpacing.Xl} />

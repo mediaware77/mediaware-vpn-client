@@ -54,7 +54,7 @@ export const SupportPage = () => {
         <SupportSection
           icon={IconKind.Question}
           title="Have questions? Check our documentation first."
-          description="Before contacting or submitting any issues to GitHub please get familiar with Defguard documentation available."
+          description="Before contacting or submitting any issues to GitHub please get familiar with the documentation available."
           action={{
             text: 'Go to documentation',
             iconRight: IconKind.OpenInNewWindow,
@@ -70,9 +70,7 @@ export const SupportPage = () => {
             iconLeft: IconKind.Github,
             variant: ButtonVariant.Secondary,
             onClick: () =>
-              openUrl(
-                'https://github.com/DefGuard/client/issues/new?template=02-bug.yml',
-              ),
+              openUrl('https://github.com/mediaware77/mediaware-vpn-client/issues/new'),
           }}
         />
         <SupportSection
@@ -84,15 +82,13 @@ export const SupportPage = () => {
             iconLeft: IconKind.Github,
             variant: ButtonVariant.Secondary,
             onClick: () =>
-              openUrl(
-                'https://github.com/DefGuard/client/issues/new?template=01-feature-request.yml',
-              ),
+              openUrl('https://github.com/mediaware77/mediaware-vpn-client/issues/new'),
           }}
         />
         <SupportSection
           icon={IconKind.Mail}
           title="Have questions? Check our documentation first."
-          description="You can contact us for any other requests at support@defguard.net."
+          description="You can contact us for any other requests at suporte@mediaware.com.br."
           divider={false}
         />
       </div>

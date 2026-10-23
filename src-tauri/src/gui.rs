@@ -261,8 +261,8 @@ pub fn run_app() {
 
                 const DOC_ITEM_ID: &str = "doc";
                 const REPORT_ITEM_ID: &str = "issue";
-                const DOC_URL: &str = "https://docs.defguard.net/using-defguard-for-end-users/desktop-client";
-                const REPORT_URL: &str = "https://github.com/DefGuard/client/issues/new?labels=bug&template=bug_report.md";
+                const DOC_URL: &str = "https://github.com/mediaware77/mediaware-vpn-client";
+                const REPORT_URL: &str = "https://github.com/mediaware77/mediaware-vpn-client/issues/new";
                 if let Some(menu) = app.menu() {
                     if let Some(help_submenu) = menu.get(tauri::menu::HELP_SUBMENU_ID) {
                         let report_item = tauri::menu::MenuItem::with_id(
@@ -276,7 +276,7 @@ pub fn run_app() {
                         let doc_item = tauri::menu::MenuItem::with_id(
                             app,
                             DOC_ITEM_ID,
-                            "Defguard Desktop Client Help",
+                            "Mediaware VPN Help",
                             true,
                             None::<&str>,
                         )?;

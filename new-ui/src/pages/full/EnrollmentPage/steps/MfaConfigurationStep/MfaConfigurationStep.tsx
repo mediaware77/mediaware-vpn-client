@@ -115,7 +115,7 @@ export const TotpSetup = () => {
   const secret = useEnrollmentStore((s) => s.userTotpSecret);
 
   const qrData = useMemo(() => {
-    return `otpauth://totp/Defguard?secret=${secret}`;
+    return `otpauth://totp/MediawareVPN?secret=${secret}`;
   }, [secret]);
 
   return (

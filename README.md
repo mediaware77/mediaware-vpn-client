@@ -1,168 +1,46 @@
- <p align="center">
-    <img src="docs/header.png" alt="defguard">
- </p>
+# Mediaware VPN — cliente desktop
 
-# Defguard desktop client
+Cliente de VPN da Mediaware para Windows e Linux. É um fork do
+[cliente desktop do Defguard](https://github.com/DefGuard/client) (versão 2.1.2),
+distribuído sob a mesma licença, **AGPL-3.0**. O código-fonte completo desta versão
+está neste repositório.
 
-Desktop client for managing WireGuard VPN connections (any WireGuard server and [defguard](https://github.com/DefGuard/defguard) instances).
+Funciona com um servidor [Defguard](https://github.com/DefGuard/defguard) 2.1:
+cadastro do aparelho por token, MFA na conexão (TOTP, e-mail, OIDC) e várias
+instâncias e locais no mesmo app.
 
-![defguard desktop client](https://defguard.net/images/product/client/main-screen.png)
+## O que muda em relação ao original
 
-## Features
+- **Marca:** nome, ícones, banners e textos da interface são da Mediaware. Os nomes
+  internos (`defguard-client`, `defguard-service`, o esquema de link `defguard://`)
+  ficaram iguais para manter compatibilidade com o servidor e com os instaladores.
+- **Sem código enterprise.** A pasta `enterprise/` do projeto original tem licença
+  própria, que não permite redistribuir nem criar produto derivado, e foi retirada.
+  Ficam de fora: checagem de postura do aparelho, locais de serviço (túnel antes do
+  login no Windows), provisionamento automático por AD/Entra ID e a sincronização
+  automática de configuração. A atualização de configuração por token continua, com
+  implementação própria em `src-tauri/src/instance_update.rs`.
+- **Protocolo:** os arquivos `.proto` abertos ficam em `src-tauri/proto/`, sem a parte
+  enterprise (o campo de postura virou `reserved`).
+- **Atualização:** o app não consulta o servidor de atualizações do Defguard.
+- **macOS:** não é compilado. A versão 2.x conecta por uma Network Extension, que
+  exige conta Apple Developer com essa permissão.
 
-- Supports any WireGuard server
-- Multi-platform - Linux, macOS & Windows
-- Detailed network overview - see all details of your connection history and statistics with real-time charts and logs
-- Multi-Factor Authentication with TOTP/Email & WireGuard PSK - Since WireGuard protocol doesn't support 2FA, most (if not all) available WireGuard clients use 2FA authorization to the "application" itself (not Wireguard tunnel). When using this client with [defguard VPN & SSO server](https://github.com/DefGuard/defguard) (which is <strong>free & open source</strong>) you will get <strong>real Multi-Factor Authentication using TOTP/Email codes + WireGuard Pre-shared session keys</strong>.
-- Multiple instances & locations - When combining with [defguard](https://github.com/DefGuard/defguard) VPN & SSO you can have multiple defguard instances (sites/installations) and multiple Locations (VPN tunnels in that location/site) in <strong>one client</strong>! If you are an admin/devops - all your customers (instances) and all their tunnels (locations) can be in one place!
-- Fast! - Built with Rust, [tauri](https://tauri.app/) and [React.js](https://react.dev/).
+## Build
 
-To learn more about the system see our [documentation](https://docs.defguard.net).
+O workflow `.github/workflows/build.yaml` gera, a cada push no ramo `mediaware`,
+um `.deb` (Linux) e um `.msi` (Windows), ainda sem assinatura de código.
 
-## Development
+Para compilar localmente, siga os pré-requisitos do [Tauri 2](https://tauri.app/start/prerequisites/)
+e instale `protobuf-compiler`. Depois:
 
-### Tauri requirements
-
-Make sure to install prerequisites from [tauri](https://tauri.app/v1/guides/getting-started/prerequisites/).
-
-### Proto submodule
-
-Make sure you have cloned, and up to date, proto submodule in `src-tauri/proto`
-
-### Protoc compiler
-
-Make sure you have [protoc](https://grpc.io/docs/protoc-installation/) available.
-
-### Install pnpm and node deps
-
-```bash
-cd new-ui
-pnpm install
+```sh
+cd new-ui && pnpm install && pnpm build
+cd ../src-tauri && SQLX_OFFLINE=1 cargo build --release
 ```
 
-### Sqlx and local database file
+## Licença
 
-To work with sqlx on a local db file, you'll have to set `DATABASE_URL` env variable.
-It's best to set it to absolute path since `cargo tauri dev` runs with weird paths.
-
-Init the file with:
-
-```bash
-export DATABASE_URL=sqlite://<full-path-to-project-dir>/dev.db`
-sqlx db create
-sqlx migrate run --source src-tauri/migrations/
-```
-
-Then keep the `$DATABASE_URL` set during development (use direnv etc.)
-
-### Dev server command
-
-Run the new UI's dev server and the Tauri app in parallel (see `justfile`'s `dev` recipe for a one-liner):
-
-```bash
-cd new-ui && pnpm dev
-# in another terminal
-cargo tauri dev
-```
-
-### Build command
-
-```bash
-cd new-ui && pnpm build
-cargo tauri build
-```
-
-Built packages are available after in `src-tauri/target/release/bundle`.
-
-### Windows
-
-For windows development you'll need:
-
-1. The `stable-x86_64-pc-windows-gnu` Rust toolchain. Use `rustup` to change the toolchain:
-
-```
-rustup install stable-x86_64-pc-windows-gnu
-rustup default stable-x86_64-pc-windows-gnu
-```
-
-2. Install [MSYS2](https://www.msys2.org/)
-
-3. Then run this in the MSYS2 terminal:
-
-```
-pacman -S --needed base-devel mingw-w64-ucrt-x86_64-toolchain mingw-w64-ucrt-x86_64-nasm
-```
-
-4. Finally add msys to your PATH:
-
-```
-# cmd
-set PATH=C:\msys64\ucrt64\bin;%PATH%
-# power-shell
-$env:PATH = "C:\msys64\ucrt64\bin;" + $env:PATH
-```
-
-More info can be found [here](https://stackoverflow.com/a/79640980).
-
-# Legal
-
-## Trademarks
-
-WireGuard® is [registered trademarks](https://www.wireguard.com/trademark-policy/) of Jason A. Donenfeld.
-
-## Third-Party Licenses
-
-This product includes third-party software components.
-The licenses for these components are provided in the "licenses" directory
-included with this distribution.
-
-For details, see:
-  licenses/THIRD_PARTY_LICENSES.txt
-
-# Known issues
-
-## Failed to bundle project
-
-`cargo tauri build` may fail with error: `Error failed to bundle project: error running appimage.sh`. To
-fix this set the NO_STRIP environment variable:
-
-```
-NO_STRIP=1 cargo tauri build
-```
-
-## Blank screen
-
-On Linux NVIDIA setups, the app automatically applies the WebKitGTK DMA-BUF workaround
-`WEBKIT_DISABLE_DMABUF_RENDERER=1` before the webview starts. On NVIDIA + Wayland setups,
-it also applies `__NV_DISABLE_EXPLICIT_SYNC=1`. If the app still launches with a blank window,
-set the DMA-BUF workaround manually:
-
-```
-WEBKIT_DISABLE_DMABUF_RENDERER=1 defguard-client
-```
-
-As a last resort for resize crashes or persistent rendering issues, disable accelerated compositing:
-
-```
-WEBKIT_DISABLE_COMPOSITING_MODE=1 defguard-client
-```
-
-## Failed to run `cargo tauri dev`
-
-`cargo tauri dev` command may result in the following error if `new-ui`'s node_modules are stale:
-
-```
-Error [ERR_REQUIRE_ESM]: require() of ES Module /home/jck/workspace/work/teonite/defguard/client/node_modules/.pnpm/path-type@5.0.0/node_modules/path-type/index.js from /home/jck/workspace/work/teonite/defguard/client/node_modules/.pnpm/read-pkg@3.0.0/node_modules/read-pkg/index.js not supported.
-Instead change the require of /home/jck/workspace/work/teonite/defguard/client/node_modules/.pnpm/path-type@5.0.0/node_modules/path-type/index.js in /home/jck/workspace/work/teonite/defguard/client/node_modules/.pnpm/read-pkg@3.0.0/node_modules/read-pkg/index.js to a dynamic import() which is available in all CommonJS modules.
-    at TracingChannel.traceSync (node:diagnostics_channel:315:14)
-    at Object.<anonymous> (/home/jck/workspace/work/teonite/defguard/client/node_modules/.pnpm/read-pkg@3.0.0/node_modules/read-pkg/index.js:4:18) {
-  code: 'ERR_REQUIRE_ESM'
-}
-
-Node.js v22.7.0
- ELIFECYCLE  Command failed with exit code 1.
-       Error The "beforeDevCommand" terminated with a non-zero status code.
- ELIFECYCLE  Command failed with exit code 1.
-```
-
-To fix this remove `new-ui/node_modules` and rerun `pnpm install` in `new-ui`.
+AGPL-3.0 — veja [LICENSE.md](LICENSE.md). Copyright do código original: defguard sp. z o.o.
+Modificações: Mediaware. "Defguard" e "WireGuard" são marcas de seus titulares; este
+projeto não é afiliado a eles.

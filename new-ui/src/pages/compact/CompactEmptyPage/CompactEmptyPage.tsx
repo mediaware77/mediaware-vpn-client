@@ -33,9 +33,9 @@ export const CompactEmptyPage = () => {
       <div className="empty-card">
         <div className="content">
           <Icon icon={IconKind.DisconnectAll} size={26} />
-          <p>{`You don't have any instances or tunnels yet. Click the button below to open Defguard.`}</p>
+          <p>{`You don't have any instances or tunnels yet. Click the button below to open Mediaware VPN.`}</p>
           <Button
-            text="Open Defguard"
+            text="Open Mediaware VPN"
             variant={ButtonVariant.Primary}
             size={ButtonSize.Primary}
             onClick={() => {

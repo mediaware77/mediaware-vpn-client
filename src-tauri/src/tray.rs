@@ -55,25 +55,8 @@ async fn generate_tray_menu(app: &AppHandle) -> Result<Menu<impl Runtime>, Error
         .map_err(crate::tauri_err_to_app_err)?;
     let hide = MenuItem::with_id(app, TRAY_EVENT_HIDE, "Hide", true, None::<&str>)
         .map_err(crate::tauri_err_to_app_err)?;
-    let subscribe_updates = MenuItem::with_id(
-        app,
-        TRAY_EVENT_UPDATES,
-        "Subscribe for updates",
-        true,
-        None::<&str>,
-    )
-    .map_err(crate::tauri_err_to_app_err)?;
-    let join_community = MenuItem::with_id(
-        app,
-        TRAY_EVENT_COMMUNITY,
-        "Community support",
-        true,
-        None::<&str>,
-    )
-    .map_err(crate::tauri_err_to_app_err)?;
-    let follow_us = MenuItem::with_id(app, TRAY_EVENT_FOLLOW, "Follow us", true, None::<&str>)
-        .map_err(crate::tauri_err_to_app_err)?;
-
+    // Upstream also lists Defguard newsletter, community and social links here; this build
+    // leaves them out of the menu.
     let mut menu = MenuBuilder::new(app);
     debug!("Getting all instances information for the tray menu");
     match all_instances().await {
@@ -134,8 +117,6 @@ async fn generate_tray_menu(app: &AppHandle) -> Result<Menu<impl Runtime>, Error
 
     menu.separator()
         .items(&[&show, &hide])
-        .separator()
-        .items(&[&subscribe_updates, &join_community, &follow_us])
         .separator()
         .item(&quit)
         .build()

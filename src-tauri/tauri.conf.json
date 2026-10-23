@@ -7,7 +7,7 @@
   "bundle": {
     "active": true,
     "category": "Utility",
-    "copyright": "Defguard",
+    "copyright": "Mediaware. Baseado no Defguard (AGPL-3.0)",
     "externalBin": [],
     "icon": [
       "icons/windows/32x32.png",
@@ -17,27 +17,23 @@
       "icons/windows/icon.ico"
     ],
     "windows": {
-      "certificateThumbprint": "c79305cdcb7e5832dd161d18580d6a846bd0506b",
       "digestAlgorithm": "sha256",
-      "timestampUrl": "http://time.certum.pl/",
       "wix": {
-        "upgradeCode": "923b21f5-7d3f-4f5e-8dcb-43fe1c65fb43",
+        "upgradeCode": "2c5bfa55-27a6-4b8c-88d9-f2541c6108c5",
         "bannerPath": "./resources-windows/msi/top_banner.png",
         "dialogImagePath": "./resources-windows/msi/side_banner.png",
           "fragmentPaths": [
-            "./resources-windows/fragments/service.wxs",
-            "./resources-windows/fragments/provisioning.wxs"
+            "./resources-windows/fragments/service.wxs"
           ],
           "componentRefs": [
-            "DefguardServiceFragment",
-            "ProvisioningScriptFragment"
+            "DefguardServiceFragment"
           ],
         "template": "./resources-windows/msi/main.wxs"
       }
     },
     "resources": ["resources/icons/tray/*"],
-    "shortDescription": "Defguard desktop client",
-    "longDescription": "Defguard desktop client",
+    "shortDescription": "Mediaware VPN",
+    "longDescription": "Cliente de VPN da Mediaware",
     "linux": {
       "deb": {
         "files": {
@@ -64,9 +60,9 @@
       }
     }
   },
-  "productName": "Defguard",
+  "productName": "Mediaware VPN",
   "mainBinaryName": "defguard-client",
-  "identifier": "net.defguard",
+  "identifier": "br.com.mediaware.vpn",
   "version": "2.1.2",
   "app": {
     "security": {

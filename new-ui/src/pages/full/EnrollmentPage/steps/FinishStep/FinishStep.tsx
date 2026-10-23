@@ -23,7 +23,7 @@ export const FinishStep = () => {
         <img src={bannerSrc} loading="eager" width={504} height={150} />
         {!showMarkdown && (
           <div className="top">
-            <p>{`New Defguard instance added successfully`}</p>
+            <p>{`New instance added successfully`}</p>
             <p>{`You can now connect this device, check its status and view statistics.`}</p>
           </div>
         )}
