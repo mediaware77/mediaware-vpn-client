@@ -28,8 +28,8 @@ export const MainBackground = () => {
       const y2 = h / 2 - (Math.cos(angle) * length) / 2;
 
       const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
-      gradient.addColorStop(0, '#5B83FF');
-      gradient.addColorStop(1, '#0036DB');
+      gradient.addColorStop(0, '#17613F');
+      gradient.addColorStop(1, '#063D2C');
 
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, w, h);

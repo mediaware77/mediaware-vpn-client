@@ -84,7 +84,7 @@ const StateSelected = () => {
       xmlns="http://www.w3.org/2000/svg"
     >
       <circle cx="12" cy="12" r="8" fill="white" />
-      <circle cx="12" cy="12" r="4" fill="#3961DB" />
+      <circle cx="12" cy="12" r="4" fill="var(--fg-action)" />
     </svg>
   );
 };

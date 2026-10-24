@@ -1,6 +1,6 @@
 .add-card {
   --border: var(--border-action-disabled);
-  --shadow: box-shadow: 0 4px 12px 0 rgb(13 47 157 / 0%);
+  --shadow: 0 4px 12px 0 rgb(6 61 44 / 0%);
   --color: var(--fg-white-60);
 
   box-sizing: border-box;
@@ -16,7 +16,7 @@
 
   &:hover {
     --border: var(--border-default);
-    --shadow: box-shadow: 0 4px 12px 0 rgb(13 47 157 / 14%);
+    --shadow: 0 4px 12px 0 rgb(6 61 44 / 14%);
     --color: var(--fg-white-100);
   }
 
@@ -27,6 +27,14 @@
         top: -55px;
         left: -80px;
       }
+    }
+  }
+
+  &.image-wireguard,
+  &.image-yubi {
+    .images img {
+      filter: grayscale(1);
+      mix-blend-mode: screen;
     }
   }
 
@@ -61,21 +69,37 @@
 
     > .images {
       width: 100%;
-      background: linear-gradient(163deg, #012bb4 4.53%, #0128a8 104.88%);
+      background: linear-gradient(163deg, #145a3a 4.53%, #052e1f 104.88%);
       backdrop-filter: blur(2px);
       overflow: hidden;
       position: relative;
     }
 
     > .contents {
+      --fg-white-100: #123b2a;
+      --color: #476454;
+      --border-default: #9cbaa8;
+      --bg-white-5: #eef7f0;
+
       user-select: none;
-      background: var(--bg-dark-blue-20);
+      background: var(--bg-white-100);
       box-sizing: border-box;
       padding: var(--spacing-md) var(--spacing-md) var(--spacing-md) var(--spacing-xl);
 
       .btn-wrap,
       .btn {
         width: 100%;
+      }
+
+      .btn.variant-outlined {
+        --bg-color: var(--fg-action);
+        --border-color: var(--fg-action);
+        --text-color: var(--c-white-100);
+
+        &:hover {
+          --bg-color: var(--c-saturated-blue-700);
+          --border-color: var(--bg-color);
+        }
       }
     }
   }

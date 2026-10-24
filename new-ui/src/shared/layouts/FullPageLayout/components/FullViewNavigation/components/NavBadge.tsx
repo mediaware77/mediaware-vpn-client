@@ -7,6 +7,6 @@ export const NavBadge = () => (
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
-    <circle cx="5" cy="5" r="4" fill="#74FFB8" stroke="#305FEE" strokeWidth="2" />
+    <circle cx="5" cy="5" r="4" fill="#74FFB8" stroke="#166534" strokeWidth="2" />
   </svg>
 );
