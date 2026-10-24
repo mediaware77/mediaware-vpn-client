@@ -26,7 +26,7 @@ export const AddPage = () => {
           }}
           title="Add Instance"
           actionText="Add instance"
-          description={`Establish a secure connection to your Mediaware VPN instance effortlessly by configuring it with a single token—no manual setup.`}
+          description={`Establish a secure connection to your PMCG VPN instance effortlessly by configuring it with a single token—no manual setup.`}
         />
         {!tunnelsDisabled(instances ?? []) && (
           <AddCard

@@ -276,7 +276,7 @@ pub fn run_app() {
                         let doc_item = tauri::menu::MenuItem::with_id(
                             app,
                             DOC_ITEM_ID,
-                            "Mediaware VPN Help",
+                            "PMCG VPN · by Mediaware Help",
                             true,
                             None::<&str>,
                         )?;

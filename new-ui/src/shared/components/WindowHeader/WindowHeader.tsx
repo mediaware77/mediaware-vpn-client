@@ -24,9 +24,10 @@ export const WindowHeader = ({ variant }: Props) => {
 
   return (
     <div id="window-header" className={clsx(`variant-${variant}`)}>
-      <LogoIcon size={variant === 'desktop' ? 33 : 48} />
+      <LogoIcon size={variant === 'desktop' ? 42 : 48} />
       <div className="info">
-        <p className="label">Mediaware VPN</p>
+        <p className="label">PMCG VPN</p>
+        <p className="brand-credit">by Mediaware</p>
         {variant === 'compact' && <ConnectionWatcher placement="bottom-start" />}
         {variant === 'desktop' && isPresent(appVersion) && (
           <p className="version">{version()}</p>
@@ -42,5 +43,10 @@ export const WindowHeader = ({ variant }: Props) => {
 };
 
 const LogoIcon = ({ size = 48 }: { size?: number }) => (
-  <img src={logoSrc} width={size} height={size} alt="Mediaware VPN" />
+  <img
+    src={logoSrc}
+    width={size}
+    height={size}
+    alt="Brasão da Prefeitura Municipal de Campina Grande"
+  />
 );

@@ -1,7 +1,6 @@
 {
-  "productName": "mediaware-vpn",
   "bundle": {
-    "longDescription": "IMPORTANT: Reboot or Re-login Required\nOn initial install the user is added to the defguard group (Mediaware VPN).\nA reboot or logging out and back in is required for group membership changes to take effect.\nThis is not required on subsequent updates.",
+    "longDescription": "IMPORTANT: Reboot or Re-login Required\nOn initial install the user is added to the defguard group (PMCG VPN · by Mediaware).\nA reboot or logging out and back in is required for group membership changes to take effect.\nThis is not required on subsequent updates.",
     "targets": [
       "deb"
     ]

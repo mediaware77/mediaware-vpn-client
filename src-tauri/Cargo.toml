@@ -55,11 +55,11 @@ edition = "2021"
 homepage = "https://github.com/mediaware77/mediaware-vpn-client"
 license-file = "../LICENSE.md"
 rust-version = "1.95"
-version = "2.1.2"
+version = "2.1.3"
 
 [package]
 name = "defguard-client"
-description = "Mediaware VPN desktop client (fork of the Defguard client)"
+description = "PMCG VPN by Mediaware (fork of the Defguard client)"
 repository = "https://github.com/mediaware77/mediaware-vpn-client"
 default-run = "defguard-client"
 autobins = false

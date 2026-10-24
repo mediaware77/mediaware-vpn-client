@@ -109,7 +109,7 @@ export const CompactLocationsPage = () => {
           <Button
             variant={ButtonVariant.Secondary}
             size="primary"
-            text="Open Mediaware VPN"
+            text="Open PMCG VPN"
             onClick={() => {
               void api.swapToFullView();
             }}

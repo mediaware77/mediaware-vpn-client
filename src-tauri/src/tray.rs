@@ -129,6 +129,7 @@ pub async fn setup_tray(app: &AppHandle) -> Result<(), Error> {
     let tray_menu = generate_tray_menu(app).await?;
 
     TrayIconBuilder::with_id(TRAY_ICON_ID)
+        .tooltip("PMCG VPN · by Mediaware")
         .menu(&tray_menu)
         .show_menu_on_left_click(false)
         // NOTE: on Linux this click handler never fires. The `tray-icon` appindicator

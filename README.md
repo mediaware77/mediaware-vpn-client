@@ -1,6 +1,6 @@
-# Mediaware VPN — cliente desktop
+# PMCG VPN · by Mediaware
 
-Cliente de VPN da Mediaware para Windows e Linux. É um fork do
+Edição da Mediaware VPN para a Prefeitura Municipal de Campina Grande, para Windows e Linux. É um fork do
 [cliente desktop do Defguard](https://github.com/DefGuard/client) (versão 2.1.2),
 distribuído sob a mesma licença, **AGPL-3.0**. O código-fonte completo desta versão
 está neste repositório.
@@ -11,7 +11,7 @@ instâncias e locais no mesmo app.
 
 ## O que muda em relação ao original
 
-- **Marca:** nome, ícones, banners e textos da interface são da Mediaware. Os nomes
+- **Marca:** brasão da prefeitura, nome **PMCG VPN** e crédito **by Mediaware** no app e no instalador. A origem do brasão está em [branding/README.md](branding/README.md). Os nomes
   internos (`defguard-client`, `defguard-service`, o esquema de link `defguard://`)
   ficaram iguais para manter compatibilidade com o servidor e com os instaladores.
 - **Sem código enterprise.** A pasta `enterprise/` do projeto original tem licença
@@ -26,9 +26,23 @@ instâncias e locais no mesmo app.
 - **macOS:** não é compilado. A versão 2.x conecta por uma Network Extension, que
   exige conta Apple Developer com essa permissão.
 
+## Instalação e compatibilidade
+
+Esta edição **substitui a Mediaware VPN** no computador. O identificador dos dados
+e o código de atualização MSI foram mantidos para preservar o cadastro existente.
+Os dois aplicativos não podem ser instalados lado a lado: compartilham os
+binários, o serviço de conexão e o protocolo `defguard://`.
+No Linux o pacote declara conflito e substituição de `mediaware-vpn`; use o
+gerenciador de pacotes para a troca. Não instalar junto com o cliente Defguard.
+A preservação dos cadastros e a conexão precisam ser conferidas em um computador
+com a versão anterior instalada antes de distribuir para os usuários.
+
+Os instaladores não têm assinatura de código. O Windows pode exibir aviso do
+SmartScreen; com Smart App Control ativo, a instalação pode ser bloqueada.
+
 ## Build
 
-O workflow `.github/workflows/build.yaml` gera, a cada push no ramo `mediaware`,
+O workflow `.github/workflows/build.yaml` gera, a cada push no ramo `codex/pmcg-vpn`,
 um `.deb` (Linux) e um `.msi` (Windows), ainda sem assinatura de código.
 
 Para compilar localmente, siga os pré-requisitos do [Tauri 2](https://tauri.app/start/prerequisites/)

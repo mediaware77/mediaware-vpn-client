@@ -6,7 +6,7 @@ name: Build
 
 on:
   push:
-    branches: [mediaware]
+    branches: [mediaware, codex/pmcg-vpn]
     tags: ["v*"]
   workflow_dispatch:
 
@@ -57,7 +57,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: mediaware-vpn-linux-deb
+          name: pmcg-vpn-linux-deb
           path: src-tauri/target/release/bundle/deb/*.deb
 
   windows:
@@ -100,5 +100,5 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: mediaware-vpn-windows-msi
+          name: pmcg-vpn-windows-msi
           path: src-tauri/target/release/bundle/msi/*.msi

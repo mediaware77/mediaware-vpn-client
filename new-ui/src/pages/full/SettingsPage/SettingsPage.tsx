@@ -112,11 +112,11 @@ export const SettingsPage = () => {
         </SettingRow>
 
         <p className="footer">
-          Mediaware VPN is based on Defguard and other open-source software (AGPL-3.0).{' '}
+          PMCG VPN · by Mediaware is based on Defguard and other open-source software (AGPL-3.0).{' '}
           <button
             type="button"
             className="link"
-            onClick={() => openUrl('https://github.com/mediaware77/mediaware-vpn-client')}
+            onClick={() => openUrl('https://github.com/mediaware77/mediaware-vpn-client/tree/codex/pmcg-vpn')}
           >
             Source code
             <Icon icon={IconKind.OpenInNewWindow} size={14} />
