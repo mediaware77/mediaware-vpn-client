@@ -19,8 +19,8 @@ Para a Prefeitura Municipal de Campina Grande, use **PMCG VPN**.
 | **PMCG VPN · by Mediaware** | **2.1.5** | [Baixar MSI](https://github.com/mediaware77/mediaware-vpn-client/releases/download/pmcg-v2.1.5/PMCG.VPN.by.Mediaware._2.1.5_x64_en-US.msi) | [Baixar DEB](https://github.com/mediaware77/mediaware-vpn-client/releases/download/pmcg-v2.1.5/PMCG.VPN.by.Mediaware._2.1.5_amd64.deb) | [Notas e SHA-256](https://github.com/mediaware77/mediaware-vpn-client/releases/tag/pmcg-v2.1.5) |
 | Mediaware VPN | 2.1.2 | [Baixar MSI](https://github.com/mediaware77/mediaware-vpn-client/releases/download/mediaware-v2.1.2/Mediaware.VPN_2.1.2_x64_en-US.msi) | [Baixar DEB](https://github.com/mediaware77/mediaware-vpn-client/releases/download/mediaware-v2.1.2/mediaware-vpn_2.1.2_amd64.deb) | [Notas e SHA-256](https://github.com/mediaware77/mediaware-vpn-client/releases/tag/mediaware-v2.1.2) |
 
-O destaque **Latest** do GitHub aponta para a edição Mediaware. A publicação da
-PMCG tem a tag **pmcg-v2.1.5** e os links próprios acima.
+O GitHub destaca uma única publicação como **Latest** neste repositório.
+Use os links próprios acima para escolher a edição PMCG ou Mediaware.
 
 Código-fonte: [PMCG — ramo codex/pmcg-vpn](https://github.com/mediaware77/mediaware-vpn-client/tree/codex/pmcg-vpn)
 e [Mediaware — ramo mediaware](https://github.com/mediaware77/mediaware-vpn-client/tree/mediaware).
