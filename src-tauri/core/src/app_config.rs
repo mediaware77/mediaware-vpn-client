@@ -57,6 +57,9 @@ pub struct AppConfig {
     /// Maximal transmission unit. 0 means default value.
     mtu: u32,
     pub auto_start_openid_mfa: bool,
+    /// SQLite location ID selected for Windows logon; 0 disables automatic connection.
+    #[serde(default)]
+    pub auto_connect_location_id: i64,
 }
 
 // Important: keep in sync with client store default in frontend
@@ -69,6 +72,7 @@ impl Default for AppConfig {
             peer_alive_period: 300,
             mtu: 0,
             auto_start_openid_mfa: false,
+            auto_connect_location_id: 0,
         }
     }
 }
@@ -116,6 +120,25 @@ impl AppConfig {
                 );
             }
         }
+    }
+
+    /// Save settings without hiding filesystem errors from callers.
+    pub fn try_save(&self, config_dir: &Path) -> std::io::Result<()> {
+        create_dir_all(config_dir)?;
+        let path = config_dir.join(APP_CONFIG_FILE_NAME);
+        let temporary = config_dir.join("config.json.tmp");
+        let file = OpenOptions::new()
+            .create(true)
+            .truncate(true)
+            .write(true)
+            .open(&temporary)?;
+        #[cfg(unix)]
+        set_perms(&temporary);
+        serde_json::to_writer(&file, self).map_err(std::io::Error::other)?;
+        file.sync_all()?;
+        drop(file);
+        std::fs::rename(temporary, path)?;
+        Ok(())
     }
 
     /// Wraps MTU in an Option. We don't store Option directly in AppConfig to avoid struct-patch
@@ -198,6 +221,42 @@ mod tests {
 
         let reloaded = AppConfig::new(dir.path());
         assert_eq!(reloaded.theme, AppTheme::Dark);
+    }
+
+    #[test]
+    fn old_config_keeps_auto_connect_disabled() {
+        let dir = tempdir().unwrap();
+        fs::write(
+            dir.path().join(APP_CONFIG_FILE_NAME),
+            br#"{"auto_start_openid_mfa":true}"#,
+        )
+        .unwrap();
+        let config = AppConfig::new(dir.path());
+        assert_eq!(config.auto_connect_location_id, 0);
+        assert!(config.auto_start_openid_mfa);
+    }
+
+    #[test]
+    fn auto_connect_selection_survives_restart_and_can_be_disabled() {
+        let dir = tempdir().unwrap();
+        let mut config = AppConfig {
+            auto_connect_location_id: 42,
+            ..AppConfig::default()
+        };
+        config.try_save(dir.path()).unwrap();
+        assert_eq!(AppConfig::new(dir.path()).auto_connect_location_id, 42);
+        config.auto_connect_location_id = 0;
+        config.try_save(dir.path()).unwrap();
+        assert_eq!(AppConfig::new(dir.path()).auto_connect_location_id, 0);
+    }
+
+    #[test]
+    fn checked_save_reports_unwritable_destination() {
+        let dir = tempdir().unwrap();
+        let file = dir.path().join("not-a-directory");
+        fs::write(&file, "existing").unwrap();
+        assert!(AppConfig::default().try_save(&file).is_err());
+        assert_eq!(fs::read_to_string(file).unwrap(), "existing");
     }
 
     #[test]

@@ -122,6 +122,7 @@ export const TauriCommand = {
   DeleteTunnel: 'delete_tunnel',
   // App config
   GetAppConfig: 'command_get_app_config',
+  AutoConnectOptions: 'auto_connect_options',
   SetAppConfig: 'command_set_app_config',
   // Misc
   GetProvisioningConfig: 'get_provisioning_config',
@@ -213,9 +214,16 @@ export type AppConfig = {
   /** Maximum transmission unit; 0 means system default. */
   mtu: number;
   auto_start_openid_mfa: boolean;
+  /** Local location ID to connect at Windows logon; 0 disables it. */
+  auto_connect_location_id: number;
 };
 
 export type AppConfigPatch = Partial<AppConfig>;
+
+export type AutoConnectOptions = {
+  supported: boolean;
+  locations: { id: number; name: string; instance_name: string }[];
+};
 
 export type InstanceInfo = {
   id: number;

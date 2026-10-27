@@ -8,6 +8,8 @@ on:
   push:
     branches: [mediaware, codex/pmcg-vpn]
     tags: ["v*"]
+  pull_request:
+    branches: [codex/pmcg-vpn]
   workflow_dispatch:
 
 env:
@@ -46,6 +48,13 @@ jobs:
       - uses: taiki-e/install-action@v2
         with:
           tool: tauri-cli@2
+
+      - name: Test core settings and enrollment
+        working-directory: src-tauri
+        run: |
+          cargo test -p defguard-client-core app_config::tests
+          cargo test -p defguard-client-core auto_connect::tests
+          cargo test -p defguard-client-core enrollment::tests
 
       - name: Build service and CLI
         working-directory: src-tauri
@@ -89,6 +98,10 @@ jobs:
       - uses: taiki-e/install-action@v2
         with:
           tool: tauri-cli@2
+
+      - name: Test Windows startup registration
+        working-directory: src-tauri
+        run: cargo test -p defguard-client --lib windows_startup::tests
 
       - name: Build service
         working-directory: src-tauri

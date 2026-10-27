@@ -42,6 +42,12 @@ export const WelcomeStep = () => {
       <ul>
         {!skipPassword && <li>{`Create your password`}</li>}
         {!skipMfa && <li>{`Configure MFA`}</li>}
+        {skipMfa && (
+          <li>
+            O cadastro pode ser concluído sem configurar MFA. Você poderá ativá-lo depois
+            no seu perfil.
+          </li>
+        )}
       </ul>
       <SizedBox height={ThemeSpacing.Xl2} />
       <InfoBanner

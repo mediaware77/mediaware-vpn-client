@@ -77,7 +77,7 @@
   "productName": "PMCG VPN (by Mediaware)",
   "mainBinaryName": "defguard-client",
   "identifier": "br.com.mediaware.vpn",
-  "version": "2.1.4",
+  "version": "2.1.5",
   "app": {
     "security": {
       "capabilities": [

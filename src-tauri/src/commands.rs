@@ -26,6 +26,8 @@ use tauri::{AppHandle, Emitter, Manager, State};
 use tokio_util::sync::CancellationToken;
 use uuid::Uuid;
 
+#[cfg(not(target_os = "macos"))]
+use crate::utils::execute_command;
 use crate::{
     app_config::{AppConfig, AppConfigPatch},
     appstate::AppState,
@@ -43,12 +45,12 @@ use crate::{
     },
     error::Error,
     events::{EventKey, TunnelsDisabledPayload, TunnelsEnabledPayload},
+    instance_update::apply_device_config,
     into_location,
     log_watcher::{
         global_log_watcher::{spawn_global_log_watcher_task, stop_global_log_watcher_task},
         service_log_watcher::stop_log_watcher_task,
     },
-    instance_update::apply_device_config,
     provisioning::ProvisioningConfig,
     proxy::construct_platform_header,
     tauri_err_to_app_err,
@@ -60,8 +62,6 @@ use crate::{
     wg_config::parse_wireguard_config,
     CommonConnection, CommonConnectionInfo, CommonLocationStats, ConnectionType,
 };
-#[cfg(not(target_os = "macos"))]
-use crate::utils::execute_command;
 
 #[derive(Debug, Serialize, thiserror::Error)]
 #[serde(tag = "kind", content = "message", rename_all = "camelCase")]
@@ -167,6 +167,12 @@ pub async fn connect(
                 )
                 .into());
             }
+            if location.mfa_enabled() {
+                return Err(Error::InvalidInput(
+                    "Esta rede exige MFA. Confirme a conexão pelo método configurado.".into(),
+                )
+                .into());
+            }
             connect_location_with_psk(location, None, &handle).await?;
         } else {
             error!(
@@ -214,6 +220,11 @@ pub async fn disconnect(
     handle: AppHandle,
 ) -> Result<(), Error> {
     let state = handle.state::<AppState>();
+    if connection_type == ConnectionType::Location
+        && state.app_config.lock().unwrap().auto_connect_location_id == location_id
+    {
+        state.startup_cancel.cancel();
+    }
     let name = get_tunnel_or_location_name(location_id, connection_type).await;
     debug!("Received a command to disconnect from the {connection_type} {name}({location_id})");
 
@@ -1227,6 +1238,41 @@ pub async fn get_latest_app_version(handle: AppHandle) -> Result<AppVersionInfo,
     })
 }
 
+static CONFIG_UPDATE_LOCK: tokio::sync::Mutex<()> = tokio::sync::Mutex::const_new(());
+
+#[derive(Serialize)]
+pub struct AutoConnectLocation {
+    id: Id,
+    name: String,
+    instance_name: String,
+}
+
+#[derive(Serialize)]
+pub struct AutoConnectOptions {
+    supported: bool,
+    locations: Vec<AutoConnectLocation>,
+}
+
+#[tauri::command(async)]
+pub async fn auto_connect_options() -> Result<AutoConnectOptions, Error> {
+    let mut locations = Vec::new();
+    for location in Location::all(&*DB_POOL, false).await? {
+        if defguard_client_core::auto_connect::eligible(&location) {
+            if let Some(instance) = Instance::find_by_id(&*DB_POOL, location.instance_id).await? {
+                locations.push(AutoConnectLocation {
+                    id: location.id,
+                    name: location.name,
+                    instance_name: instance.name,
+                });
+            }
+        }
+    }
+    Ok(AutoConnectOptions {
+        supported: cfg!(windows),
+        locations,
+    })
+}
+
 #[tauri::command]
 pub fn command_get_app_config(app_state: State<'_, AppState>) -> Result<AppConfig, Error> {
     debug!("Running command get app config.");
@@ -1241,19 +1287,53 @@ pub async fn command_set_app_config(
     emit_event: bool,
     app_handle: AppHandle,
 ) -> Result<AppConfig, Error> {
+    let _update_guard = CONFIG_UPDATE_LOCK.lock().await;
     let app_state = app_handle.state::<AppState>();
     debug!("Command set app config received.");
     trace!("Command payload: {config_patch:?}");
-    let res = {
-        let mut app_config = app_state.app_config.lock().unwrap();
-        app_config.apply(config_patch);
-        let config_dir = app_handle
-            .path()
-            .app_data_dir()
-            .expect("Failed to access app data");
-        app_config.save(&config_dir);
-        app_config.clone()
-    };
+    let previous = app_state.app_config.lock().unwrap().clone();
+    let mut res = previous.clone();
+    res.apply(config_patch);
+    let startup_changed = res.auto_connect_location_id != previous.auto_connect_location_id;
+    if startup_changed {
+        if !cfg!(windows) || res.auto_connect_location_id < 0 {
+            return Err(Error::InvalidInput(
+                "A conexão automática está disponível somente no Windows.".into(),
+            ));
+        }
+        if res.auto_connect_location_id > 0 {
+            let location = Location::find_by_id(&*DB_POOL, res.auto_connect_location_id)
+                .await?
+                .ok_or(Error::NotFound)?;
+            if !defguard_client_core::auto_connect::eligible(&location) {
+                return Err(Error::InvalidInput(
+                    "Esta rede exige MFA ou outra verificação e não permite conexão automática."
+                        .into(),
+                ));
+            }
+        }
+        #[cfg(windows)]
+        crate::windows_startup::set_enabled(res.auto_connect_location_id > 0)?;
+    }
+    let config_dir = app_handle
+        .path()
+        .app_data_dir()
+        .map_err(tauri_err_to_app_err)?;
+    if let Err(error) = res.try_save(&config_dir) {
+        #[cfg(windows)]
+        if startup_changed {
+            if let Err(rollback_error) =
+                crate::windows_startup::set_enabled(previous.auto_connect_location_id > 0)
+            {
+                error!("Could not restore Windows startup setting after save failure: {rollback_error}");
+            }
+        }
+        return Err(error.into());
+    }
+    *app_state.app_config.lock().unwrap() = res.clone();
+    if startup_changed {
+        app_state.startup_cancel.cancel();
+    }
     info!("Config changed successfully");
     if emit_event {
         match app_handle.emit(EventKey::ApplicationConfigChanged.into(), ()) {

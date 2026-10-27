@@ -14,6 +14,7 @@ use defguard_client_proto::defguard::client_types::DeviceConfig;
 use serde::{Deserialize, Serialize};
 
 pub mod app_config;
+pub mod auto_connect;
 pub mod connection;
 pub mod database;
 pub mod enrollment;
