@@ -1,6 +1,7 @@
-# Mediaware VPN — cliente desktop
+# Clientes VPN — Mediaware e PMCG
 
-Cliente de VPN da Mediaware para Windows e Linux. É um fork do
+Edições **Mediaware VPN** e **PMCG VPN · by Mediaware** para Windows e Linux.
+O projeto é um fork do
 [cliente desktop do Defguard](https://github.com/DefGuard/client) (versão 2.1.2),
 distribuído sob a mesma licença, **AGPL-3.0**. O código-fonte completo desta versão
 está neste repositório.
@@ -8,6 +9,23 @@ está neste repositório.
 Funciona com um servidor [Defguard](https://github.com/DefGuard/defguard) 2.1:
 cadastro do aparelho por token, MFA na conexão (TOTP, e-mail, OIDC) e várias
 instâncias e locais no mesmo app.
+
+## Downloads
+
+Para a Prefeitura Municipal de Campina Grande, use **PMCG VPN**.
+
+| Edição | Versão | Windows x64 | Linux amd64 | Publicação |
+|---|---|---|---|---|
+| **PMCG VPN · by Mediaware** | **2.1.5** | [Baixar MSI](https://github.com/mediaware77/mediaware-vpn-client/releases/download/pmcg-v2.1.5/PMCG.VPN.by.Mediaware._2.1.5_x64_en-US.msi) | [Baixar DEB](https://github.com/mediaware77/mediaware-vpn-client/releases/download/pmcg-v2.1.5/PMCG.VPN.by.Mediaware._2.1.5_amd64.deb) | [Notas e SHA-256](https://github.com/mediaware77/mediaware-vpn-client/releases/tag/pmcg-v2.1.5) |
+| Mediaware VPN | 2.1.2 | [Baixar MSI](https://github.com/mediaware77/mediaware-vpn-client/releases/download/mediaware-v2.1.2/Mediaware.VPN_2.1.2_x64_en-US.msi) | [Baixar DEB](https://github.com/mediaware77/mediaware-vpn-client/releases/download/mediaware-v2.1.2/mediaware-vpn_2.1.2_amd64.deb) | [Notas e SHA-256](https://github.com/mediaware77/mediaware-vpn-client/releases/tag/mediaware-v2.1.2) |
+
+O destaque **Latest** do GitHub aponta para a edição Mediaware. A publicação da
+PMCG tem a tag **pmcg-v2.1.5** e os links próprios acima.
+
+Código-fonte: [PMCG — ramo codex/pmcg-vpn](https://github.com/mediaware77/mediaware-vpn-client/tree/codex/pmcg-vpn)
+e [Mediaware — ramo mediaware](https://github.com/mediaware77/mediaware-vpn-client/tree/mediaware).
+O repositório privado `vpn-pmcg` guarda a infraestrutura dos servidores; os
+instaladores do aplicativo são publicados neste repositório público.
 
 ## O que muda em relação ao original
 
