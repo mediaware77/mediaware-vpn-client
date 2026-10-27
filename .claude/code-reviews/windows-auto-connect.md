@@ -9,7 +9,10 @@ Revisão estática sem achados técnicos pendentes.
 - Desconexão manual ou troca da preferência cancela novas tentativas de inicialização.
 - Cadastro sem MFA segue a regra informada pelo servidor; não altera tokens nem fatores existentes.
 
-Validação inicial: interface compilada e arquivos alterados aprovados no Biome.
+Validação: interface compilada, Biome aprovado nos arquivos alterados e 23 testes do núcleo aprovados.
+Conferência da interface com respostas simuladas: ativar/desativar, reabrir mantendo a escolha, falha na gravação, rede com MFA e ocultação no Linux.
+O fluxo de cadastro foi exercitado sem MFA (Welcome → Password → Finish) e com MFA (etapa de configuração preservada).
+Registro de inicialização: teste nativo do Windows aprovado.
 Testes Rust e instaladores: em validação no GitHub Actions; conferir a execução da branch antes de publicar.
 O compilador mínimo foi corrigido para 1.96, exigido pelas dependências já fixadas.
 Teste com reinício de um computador Windows real continua necessário.

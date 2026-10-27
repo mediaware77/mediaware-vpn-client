@@ -90,7 +90,7 @@ export const SettingsPage = () => {
         {autoConnect?.supported && (
           <SettingRow
             title="Conectar ao entrar no Windows"
-            description="Escolha a rede para conectar em segundo plano, sem código MFA. Só aparecem redes que permitem acesso sem MFA. Quem usar esta conta do Windows poderá usar a VPN. Para parar, selecione Desligado."
+            description="Escolha a rede para conectar em segundo plano, sem código MFA. Só aparecem redes que permitem acesso sem MFA. Quem usar esta conta do Windows poderá usar a VPN. Para desativar a conexão automática, selecione Desligado."
           >
             <Select
               testId="windows-auto-connect"

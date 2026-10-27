@@ -1294,6 +1294,10 @@ pub async fn command_set_app_config(
     let previous = app_state.app_config.lock().unwrap().clone();
     let mut res = previous.clone();
     res.apply(config_patch);
+    let config_dir = app_handle
+        .path()
+        .app_data_dir()
+        .map_err(tauri_err_to_app_err)?;
     let startup_changed = res.auto_connect_location_id != previous.auto_connect_location_id;
     if startup_changed {
         if !cfg!(windows) || res.auto_connect_location_id < 0 {
@@ -1315,10 +1319,6 @@ pub async fn command_set_app_config(
         #[cfg(windows)]
         crate::windows_startup::set_enabled(res.auto_connect_location_id > 0)?;
     }
-    let config_dir = app_handle
-        .path()
-        .app_data_dir()
-        .map_err(tauri_err_to_app_err)?;
     if let Err(error) = res.try_save(&config_dir) {
         #[cfg(windows)]
         if startup_changed {

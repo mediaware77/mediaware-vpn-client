@@ -101,7 +101,9 @@ jobs:
 
       - name: Test Windows startup registration
         working-directory: src-tauri
-        run: cargo test -p defguard-client --lib windows_startup::tests
+        run: |
+          cargo test -p defguard-client-core app_config::tests
+          cargo test -p defguard-client --lib windows_startup::tests
 
       - name: Build service
         working-directory: src-tauri

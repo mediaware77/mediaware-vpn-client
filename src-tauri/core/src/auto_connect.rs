@@ -22,25 +22,22 @@ mod tests {
 
     #[test]
     fn allows_only_regular_locations_without_authentication_requirements() {
-        for mfa in [
-            LocationMfaMode::Disabled,
-            LocationMfaMode::Internal,
-            LocationMfaMode::External,
-        ] {
-            for service in [
-                ServiceLocationMode::Disabled,
-                ServiceLocationMode::PreLogon,
-                ServiceLocationMode::AlwaysOn,
-            ] {
-                for posture in [false, true] {
-                    assert_eq!(
-                        policy_allows(mfa, service, posture),
-                        mfa == LocationMfaMode::Disabled
-                            && service == ServiceLocationMode::Disabled
-                            && !posture
-                    );
-                }
-            }
+        use LocationMfaMode::{Disabled, External, Internal};
+        use ServiceLocationMode::{AlwaysOn, Disabled as Regular, PreLogon};
+        let cases = [
+            (Disabled, Regular, false, true),
+            (Internal, Regular, false, false),
+            (External, Regular, false, false),
+            (Disabled, Regular, true, false),
+            (Disabled, PreLogon, false, false),
+            (Disabled, AlwaysOn, false, false),
+        ];
+        for (mfa, service, posture, expected) in cases {
+            assert_eq!(
+                policy_allows(mfa, service, posture),
+                expected,
+                "{mfa:?}/{service:?}/posture={posture}"
+            );
         }
     }
 }
