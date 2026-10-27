@@ -54,8 +54,8 @@ authors = ["Defguard", "Mediaware"]
 edition = "2021"
 homepage = "https://github.com/mediaware77/mediaware-vpn-client"
 license-file = "../LICENSE.md"
-rust-version = "1.95"
-version = "2.1.4"
+rust-version = "1.96"
+version = "2.1.5"
 
 [package]
 name = "defguard-client"

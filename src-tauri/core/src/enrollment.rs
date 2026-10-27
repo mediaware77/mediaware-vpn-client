@@ -393,6 +393,45 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn enrollment_without_required_mfa_can_activate_and_finish() {
+        let server = MockServer::start().await;
+        let mut start = full_start_json();
+        start["settings"]["mfa_required"] = json!(false);
+        Mock::given(method("POST"))
+            .and(path("/api/v1/enrollment/start"))
+            .respond_with(
+                ResponseTemplate::new(200)
+                    .set_body_json(start)
+                    .insert_header(
+                        "Set-Cookie",
+                        "defguard_proxy=optional-mfa; Path=/api/v1/enrollment",
+                    ),
+            )
+            .expect(1)
+            .mount(&server)
+            .await;
+        Mock::given(method("POST"))
+            .and(path("/api/v1/enrollment/activate_user"))
+            .respond_with(ResponseTemplate::new(200))
+            .expect(1)
+            .mount(&server)
+            .await;
+        let (session, response) = enrollment_start(mock_url(&server), "test-token".into())
+            .await
+            .unwrap();
+        assert!(!response.settings.unwrap().mfa_required);
+        enrollment_activate_user(session.clone(), Some("TestPassword123!".into()), None)
+            .await
+            .unwrap();
+        enrollment_finish(session);
+        let requests = server.received_requests().await.unwrap();
+        assert_eq!(requests.len(), 2);
+        assert!(!requests
+            .iter()
+            .any(|request| request.url.path().contains("register-mfa")));
+    }
+
+    #[tokio::test]
     async fn test_start_token_expired_401() {
         let server = MockServer::start().await;
 

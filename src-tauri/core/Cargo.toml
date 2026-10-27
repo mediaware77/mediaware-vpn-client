@@ -49,7 +49,7 @@ wiremock.workspace = true
 nix = { version = "0.31", features = ["user", "fs"] }
 
 [target.'cfg(windows)'.dependencies]
-windows-sys = { version = "0.61", features = ["Win32_Foundation"] }
+windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_System_Registry"] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 block2 = "0.6"

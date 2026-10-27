@@ -1,9 +1,9 @@
 use std::{collections::HashMap, sync::Mutex};
 
+use crate::provisioning::ProvisioningConfig;
 use defguard_client_core::{
     connection::active_connections::ACTIVE_CONNECTIONS, enrollment::EnrollmentSession,
 };
-use crate::provisioning::ProvisioningConfig;
 use tauri::{
     async_runtime::{spawn, JoinHandle},
     PhysicalPosition,
@@ -24,6 +24,7 @@ pub struct AppState {
     pub log_watchers: Mutex<HashMap<String, CancellationToken>>,
     pub mfa_tasks: Mutex<HashMap<String, CancellationToken>>,
     pub app_config: Mutex<AppConfig>,
+    pub startup_cancel: CancellationToken,
     pub tray_click_position: Mutex<Option<PhysicalPosition<f64>>>,
     stat_threads: Mutex<HashMap<Id, JoinHandle<()>>>, // location ID is the key
     pub provisioning_config: Mutex<Option<ProvisioningConfig>>,
@@ -38,6 +39,7 @@ impl AppState {
             log_watchers: Mutex::new(HashMap::new()),
             mfa_tasks: Mutex::new(HashMap::new()),
             app_config: Mutex::new(config),
+            startup_cancel: CancellationToken::new(),
             tray_click_position: Mutex::new(None),
             stat_threads: Mutex::new(HashMap::new()),
             provisioning_config: Mutex::new(provisioning_config),

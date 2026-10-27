@@ -32,7 +32,8 @@ fn main() {
         false
     };
 
-    if env::args().count() <= 1 || is_deep_link {
+    let is_startup = cfg!(windows) && env::args().any(|arg| arg == "--auto-connect");
+    if env::args().count() <= 1 || is_deep_link || is_startup {
         #[cfg(target_os = "linux")]
         set_webkitgtk_variables();
         run_app();

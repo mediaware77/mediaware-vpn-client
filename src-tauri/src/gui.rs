@@ -157,6 +157,10 @@ async fn startup(app_handle: &AppHandle) {
         Err(err) => error!("Failed to configure system tray: {err}"),
     }
     debug!("Tray menu has been re-generated successfully.");
+    #[cfg(windows)]
+    if crate::windows_startup::launched_at_logon() {
+        tauri::async_runtime::spawn(crate::windows_startup::connect_at_logon(app_handle.clone()));
+    }
 }
 
 pub fn run_app() {
@@ -189,6 +193,7 @@ pub fn run_app() {
             start_global_logwatcher,
             stop_global_logwatcher,
             command_get_app_config,
+            auto_connect_options,
             command_set_app_config,
             get_provisioning_config,
             get_platform_header,
@@ -262,7 +267,8 @@ pub fn run_app() {
                 const DOC_ITEM_ID: &str = "doc";
                 const REPORT_ITEM_ID: &str = "issue";
                 const DOC_URL: &str = "https://github.com/mediaware77/mediaware-vpn-client";
-                const REPORT_URL: &str = "https://github.com/mediaware77/mediaware-vpn-client/issues/new";
+                const REPORT_URL: &str =
+                    "https://github.com/mediaware77/mediaware-vpn-client/issues/new";
                 if let Some(menu) = app.menu() {
                     if let Some(help_submenu) = menu.get(tauri::menu::HELP_SUBMENU_ID) {
                         let report_item = tauri::menu::MenuItem::with_id(
@@ -361,7 +367,9 @@ pub fn run_app() {
                     })
                     .targets([
                         Target::new(TargetKind::Stdout),
-                        Target::new(TargetKind::LogDir { file_name: Some(LOG_FILENAME.to_string()) }),
+                        Target::new(TargetKind::LogDir {
+                            file_name: Some(LOG_FILENAME.to_string()),
+                        }),
                     ])
                     .level(log_level)
                     .filter(|metadata| {
@@ -437,6 +445,8 @@ pub fn run_app() {
             } else if open_welcome_view {
                 info!("Opening welcome view.");
                 let _ = WindowManager::open_welcome_view(app_handle);
+            } else if cfg!(windows) && std::env::args().any(|arg| arg == "--auto-connect") {
+                info!("Starting in the background at Windows logon.");
             } else {
                 show_tray_or_full_view(app_handle);
             }

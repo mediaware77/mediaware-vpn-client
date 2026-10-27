@@ -89,6 +89,12 @@ export const getTunnelDetailsQueryOptions = (tunnelId: number) =>
     queryFn: () => api.getTunnelDetails(tunnelId),
   });
 
+export const getAutoConnectOptionsQueryOptions = queryOptions({
+  queryKey: ['auto-connect-options'] as const,
+  queryFn: api.getAutoConnectOptions,
+  refetchInterval: 10_000,
+});
+
 export const getAppConfigQueryOptions = queryOptions({
   queryKey: ['settings'] as const,
   queryFn: () => api.getAppConfig(),

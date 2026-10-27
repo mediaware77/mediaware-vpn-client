@@ -17,6 +17,8 @@ pub mod system_extension;
 pub mod tray;
 pub mod utils;
 pub mod window_manager;
+#[cfg(windows)]
+pub mod windows_startup;
 
 #[cfg(unix)]
 pub use defguard_client_core::set_perms;

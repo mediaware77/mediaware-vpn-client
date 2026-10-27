@@ -4,6 +4,7 @@ import type {
   ActiveConnectionSummary,
   AppConfig,
   AppConfigPatch,
+  AutoConnectOptions,
   Connection,
   ConnectionArgs,
   CreateDeviceResponse,
@@ -97,6 +98,8 @@ const deleteTunnel = (tunnelId: number): Promise<void> =>
   invoke(TauriCommand.DeleteTunnel, { tunnelId });
 
 const getAppConfig = (): Promise<AppConfig> => invoke(TauriCommand.GetAppConfig);
+const getAutoConnectOptions = (): Promise<AutoConnectOptions> =>
+  invoke(TauriCommand.AutoConnectOptions);
 
 const setAppConfig = (
   configPatch: AppConfigPatch,
@@ -256,6 +259,7 @@ export const api = {
   deleteTunnel,
   // App config
   getAppConfig,
+  getAutoConnectOptions,
   setAppConfig,
   // Misc
   getProvisioningConfig,

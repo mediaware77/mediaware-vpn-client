@@ -26,6 +26,28 @@ instâncias e locais no mesmo app.
 - **macOS:** não é compilado. A versão 2.x conecta por uma Network Extension, que
   exige conta Apple Developer com essa permissão.
 
+## Conexão automática no Windows
+
+Em **Settings → Conectar ao entrar no Windows**, selecione a rede. O app inicia
+em segundo plano quando esse usuário entra no Windows, sem abrir a janela ou
+solicitar código. Não conecta antes do login. A opção começa desligada e pode
+ser desativada selecionando **Desligado**; uma desconexão manual permanece até
+o próximo login. Não há cadastro de tarefa privilegiada nem cópia de senha ou
+segredo MFA: o app reutiliza o aparelho já cadastrado.
+
+Somente redes regulares sem exigência de MFA ou postura podem ser selecionadas.
+O app verifica a regra novamente no início; não contorna uma exigência do servidor.
+Se o serviço ainda não estiver pronto, tenta novamente por até dez minutos.
+A inicialização usa uma entrada **PMCGVPN** em `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`.
+Quem controlar a conta Windows pode usar esse acesso. As chaves permanecem no
+armazenamento local que o cliente já utiliza.
+
+O administrador precisa configurar a rede PMCG com MFA desativado. Quando o
+servidor informa `mfa_required=false`, o cadastro já permite concluir sem
+configurar autenticador. MFA previamente cadastrado não é apagado; continua
+podendo proteger o painel. Aparelhos antigos devem atualizar a configuração
+pelo token de **Update Instance** para receber a nova regra.
+
 ## Instalação e compatibilidade
 
 Esta edição **substitui a Mediaware VPN** no computador. O identificador dos dados

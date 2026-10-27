@@ -14,6 +14,7 @@ use defguard_client_proto::defguard::client_types::DeviceConfig;
 use serde::{Deserialize, Serialize};
 
 pub mod app_config;
+pub mod auto_connect;
 pub mod connection;
 pub mod database;
 pub mod enrollment;
@@ -25,6 +26,8 @@ pub mod proxy;
 mod test_helpers;
 pub mod version;
 pub mod wg_config;
+#[cfg(windows)]
+pub mod windows_startup;
 
 // Re-export proto module for backward compatibility within core.
 pub use defguard_client_proto::defguard as proto;
